@@ -126,12 +126,13 @@ all_dates_short = hist_dates + future_dates_str
 xticks = range(hist_start, len(y) + future_steps)
 # Если прогноз длиннее 10 дней, уменьшаем размер шрифта для подписей дат
 if future_steps > 10:
+    ax2.set_xticks(xticks)
+    ax2.set_xticklabels([str(d) for d in all_dates_short], rotation=60, ha='right')
     for label in ax2.get_xticklabels():
         label.set_fontsize(8)
-    ax2.set_xticklabels([str(d) for d in all_dates_short], rotation=60, ha='right')
 else:
+    ax2.set_xticks(xticks)
     ax2.set_xticklabels([str(d) for d in all_dates_short], rotation=30, ha='right')
-ax2.set_xticks(xticks)
 ax2.set_title(f'Будущий прогноз курса {ticker} (на {future_steps} дней)')
 ax2.legend()
 st.pyplot(fig2)
