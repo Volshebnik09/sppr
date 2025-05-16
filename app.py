@@ -18,7 +18,7 @@ TICKERS_FOREIGN = [
     'AAPL', 'GOOGL', 'MSFT', 'TSLA', 'BTC-USD', 'ETH-USD',
 ]
 TICKERS_RU = [
-    'SBER', 'GAZP', 'LKOH', 'GMKN', "IRAO", 'TATN', 'SNGS', 'ROSN', 'ALRS', 'AFLT',
+    'SBER', 'GAZP', 'LKOH', 'GMKN', "IRAO", 'TATN', 'SNGS', 'ROSN', 'ALRS',
 ]
 
 TICKERS = TICKERS_RU if show_russian else TICKERS_FOREIGN
