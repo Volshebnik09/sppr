@@ -18,7 +18,7 @@ TICKERS_FOREIGN = [
     'AAPL', 'GOOGL', 'MSFT', 'TSLA', 'BTC-USD', 'ETH-USD',
 ]
 TICKERS_RU = [
-    'SBER', 'GAZP', 'LKOH', 'GMKN'
+    'SBER', 'GAZP', 'LKOH', 'GMKN', "IRAO", 'TATN', 'SNGS', 'ROSN', 'ALRS', 'AFLT',
 ]
 
 TICKERS = TICKERS_RU if show_russian else TICKERS_FOREIGN
@@ -141,4 +141,4 @@ pred_table = pd.DataFrame({'Дата': future_dates, 'Прогноз': future_pr
 pred_table = pred_table.sort_values('Дата').reset_index(drop=True)
 st.dataframe(pred_table, hide_index=True)
 
-st.write(f'MSE: {mean_squared_error(y_test, preds):.2f}')
+st.write(f'MSE: {mean_squared_error(y_test, preds):.4f}')
