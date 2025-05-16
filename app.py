@@ -60,11 +60,12 @@ def load_data(ticker, is_russian):
         return data
 
 data = load_data(ticker, show_russian)
+data = data.sort_index()  # сортировка по времени (по индексу)
 # Проверяем наличие столбца 'Close' перед подготовкой данных
 if 'Close' not in data.columns:
     st.error('Нет данных "Close" для выбранного тикера. Попробуйте другой актив.')
     st.stop()
-st.write('Текущие данные:', data.tail())
+st.write('Текущие данные:', data.tail(30))
 
 # Подготовка данных для модели
 window = 5
@@ -108,19 +109,21 @@ for _ in range(future_steps):
     last_window = np.roll(last_window, -1)
     last_window[0, -1] = next_pred
 last_date = data.index[-1]
-future_dates = pd.date_range(last_date + pd.Timedelta(days=1), periods=future_steps, freq='B')
+# Исправлено: прогнозируемые даты идут подряд, без пропусков
+future_dates = [last_date + pd.Timedelta(days=i) for i in range(1, future_steps+1)]
 
 # Отдельный график: будущий прогноз
 fig2, ax2 = plt.subplots(figsize=(10, 5))
 # Показываем только последние несколько истинных значений (например, последние 10), чтобы видеть тренд перед прогнозом
 show_hist = min(10, len(y))
-ax2.plot(range(len(y)-show_hist, len(y)), y[-show_hist:], label='Истинные значения (последние)', color='blue')
+hist_start = max(0, len(y)-show_hist)
+hist_dates = [data.index[i].date() for i in range(hist_start, len(y))]
+ax2.plot(range(hist_start, len(y)), y[-show_hist:], label='Истинные значения (последние)', color='blue')
 ax2.plot(range(len(y), len(y) + future_steps), future_preds, label='Будущий прогноз', linestyle=':', color='orange')
 # Формируем список всех дат для оси X только для последних истинных значений и будущих прогнозов
-hist_dates = [data.index[i].date() for i in range(len(y)-show_hist, len(y))]
 future_dates_str = [d.date() for d in future_dates]
 all_dates_short = hist_dates + future_dates_str
-xticks = range(len(y)-show_hist, len(y) + future_steps)
+xticks = range(hist_start, len(y) + future_steps)
 # Если прогноз длиннее 10 дней, уменьшаем размер шрифта для подписей дат
 if future_steps > 10:
     for label in ax2.get_xticklabels():
@@ -135,6 +138,7 @@ st.pyplot(fig2)
 
 # Таблица с ближайшими предсказаниями курса (будущий прогноз)
 pred_table = pd.DataFrame({'Дата': future_dates, 'Прогноз': future_preds})
-st.write(f'{future_steps} ближайших прогнозов:', pred_table)
+pred_table = pred_table.sort_values('Дата').reset_index(drop=True)
+st.dataframe(pred_table, hide_index=True)
 
 st.write(f'MSE: {mean_squared_error(y_test, preds):.2f}')
