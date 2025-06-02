@@ -88,11 +88,15 @@ model.fit(X_train, y_train)
 preds = model.predict(X_test)
 
 # Визуализация (текущий график: фактические + прогноз на тесте)
+dates = data.index[window:]
 fig, ax = plt.subplots(figsize=(10, 5))
-ax.plot(range(len(y)), y, label='Истинные значения')
-ax.plot(range(len(y_train), len(y)), preds, label='Прогноз', linestyle='--')
+ax.plot(dates, y, label='Истинные значения')
+ax.plot(dates[len(y_train):], preds, label='Прогноз', linestyle='--')
 ax.set_title(f'Прогноз курса {ticker} (тестовый прогноз)')
 ax.legend()
+ax.set_xlabel('Дата')
+ax.set_ylabel('Цена')
+fig.autofmt_xdate(rotation=30)
 st.pyplot(fig)
 
 # --- Будущий прогноз ---
