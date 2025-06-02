@@ -9,5 +9,7 @@ dependencies = [
     "pandas",
     "scikit-learn",
     "yfinance",
-    "matplotlib"
+    "matplotlib",
+    "moexalgo",
+    "yfinance"
 ]
