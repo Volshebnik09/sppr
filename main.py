@@ -147,3 +147,22 @@ pred_table = pred_table.sort_values('Дата').reset_index(drop=True)
 st.dataframe(pred_table, hide_index=True)
 
 st.write(f'MSE: {mean_squared_error(y_test, preds):.4f}')
+
+# --- Рекомендация по покупке/продаже ---
+current_price = data['Close'].iloc[-1]
+# Берём прогноз на выбранный горизонт (последний в списке future_preds)
+future_price = future_preds[-1] if future_preds else current_price
+
+# Также можно показать прогноз на ближайший день для сравнения
+first_future_price = future_preds[0] if future_preds else current_price
+
+# Дельта для выбранного горизонта
+horizon_delta = future_price - current_price
+threshold = 0.005 * current_price  # 0.5% для нейтральной зоны
+
+if horizon_delta > threshold:
+    st.success(f'Рекомендация на {future_steps} дней: Покупать (ожидается рост с {current_price:.2f} до {future_price:.2f})')
+elif horizon_delta < -threshold:
+    st.error(f'Рекомендация на {future_steps} дней: Продавать (ожидается снижение с {current_price:.2f} до {future_price:.2f})')
+else:
+    st.info(f'Рекомендация на {future_steps} дней: Держать (существенных изменений не ожидается)')
