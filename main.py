@@ -28,10 +28,10 @@ ticker = st.selectbox('Выберите актив для анализа', TICKE
 @st.cache_data
 def load_data(ticker, is_russian):
     if is_russian:
-        # Для российских акций через moexalgo (актуальный способ)
+        # Для российских акций через moexalgo 
         ticker_data = moexalgo.Ticker(ticker)
         end = datetime.today().date()
-        start = end - timedelta(days=730)  # 2 года
+        start = end - timedelta(days=730)  
         df = ticker_data.candles(
             start=start,
             end=end,
@@ -70,11 +70,13 @@ st.write('Текущие данные:', data.tail(30))
 # Подготовка данных для модели
 window = 5
 def prepare_data(df, window=5):
+    features = ['Close', 'Open', 'High', 'Low', 'Volume']
     X, y = [], []
-    close = df['Close'].to_numpy().flatten()  # гарантируем 1D массив
+    values = df[features].to_numpy()
     for i in range(window, len(df)):
-        X.append(close[i-window:i])
-        y.append(close[i])
+        window_values = values[i-window:i].flatten()
+        X.append(window_values)
+        y.append(values[i][0])  # Close на следующий день
     return pd.DataFrame(X), pd.Series(y)
 
 X, y = prepare_data(data, window)
