@@ -60,8 +60,7 @@ def load_data(ticker, is_russian):
         return data
 
 data = load_data(ticker, show_russian)
-data = data.sort_index()  # сортировка по времени (по индексу)
-# Проверяем наличие столбца 'Close' перед подготовкой данных
+data = data.sort_index()  
 if 'Close' not in data.columns:
     st.error('Нет данных "Close" для выбранного тикера. Попробуйте другой актив.')
     st.stop()
@@ -76,7 +75,7 @@ def prepare_data(df, window=5):
     for i in range(window, len(df)):
         window_values = values[i-window:i].flatten()
         X.append(window_values)
-        y.append(values[i][0])  # Close на следующий день
+        y.append(values[i][0])  
     return pd.DataFrame(X), pd.Series(y)
 
 X, y = prepare_data(data, window)
@@ -102,11 +101,9 @@ fig.autofmt_xdate(rotation=30)
 st.pyplot(fig)
 
 # --- Будущий прогноз ---
-# Выбор горизонта прогноза
 future_steps_option = st.selectbox('Горизонт будущего прогноза', options=[5, 10, 15, 45], format_func=lambda x: f'{x} дней')
 future_steps = future_steps_option
 
-# future_steps теперь задаётся пользователем
 last_window = X.iloc[-1].values.reshape(1, -1)
 future_preds = []
 for _ in range(future_steps):
@@ -115,12 +112,9 @@ for _ in range(future_steps):
     last_window = np.roll(last_window, -1)
     last_window[0, -1] = next_pred
 last_date = data.index[-1]
-# Исправлено: прогнозируемые даты идут подряд, без пропусков
 future_dates = [last_date + pd.Timedelta(days=i) for i in range(1, future_steps+1)]
 
-# Отдельный график: будущий прогноз
 fig2, ax2 = plt.subplots(figsize=(10, 5))
-# Показываем только последние несколько истинных значений (например, последние 10), чтобы видеть тренд перед прогнозом
 show_hist = min(10, len(y))
 hist_start = max(0, len(y)-show_hist)
 hist_dates = [data.index[i].date() for i in range(hist_start, len(y))]
@@ -130,7 +124,6 @@ ax2.plot(range(len(y), len(y) + future_steps), future_preds, label='Будущи
 future_dates_str = [d.date() for d in future_dates]
 all_dates_short = hist_dates + future_dates_str
 xticks = range(hist_start, len(y) + future_steps)
-# Если прогноз длиннее 10 дней, уменьшаем размер шрифта для подписей дат
 if future_steps > 10:
     ax2.set_xticks(xticks)
     ax2.set_xticklabels([str(d) for d in all_dates_short], rotation=60, ha='right')
@@ -152,13 +145,10 @@ st.write(f'MSE: {mean_squared_error(y_test, preds):.4f}')
 
 # --- Рекомендация по покупке/продаже ---
 current_price = data['Close'].iloc[-1]
-# Берём прогноз на выбранный горизонт (последний в списке future_preds)
 future_price = future_preds[-1] if future_preds else current_price
 
-# Также можно показать прогноз на ближайший день для сравнения
 first_future_price = future_preds[0] if future_preds else current_price
 
-# Дельта для выбранного горизонта
 horizon_delta = future_price - current_price
 threshold = 0.005 * current_price  # 0.5% для нейтральной зоны
 
